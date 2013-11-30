@@ -17,15 +17,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class MultiFileTableProvider implements ExtendedTableProvider {
+public class MultiFileTableProvider implements ExtendedTableProvider, AutoCloseable {
     private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
 
     private final ReadWriteLock tableProviderTransactionLock = new ReentrantReadWriteLock(true);
     private File dbDirectory;
-    private Map<String, ExtendedTable> tableMap = new HashMap<>();
+    private Map<String, MultiFileTable> tableMap = new HashMap<>();
+    private AtomicBoolean isClosed;
 
     public MultiFileTableProvider(File dbDirectory) throws IOException {
         if (dbDirectory == null) {
@@ -43,11 +45,15 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
             tableMap.put(table.getName(), table);
         }
         this.dbDirectory = dbDirectory;
+        this.isClosed = new AtomicBoolean(false);
 
     }
 
     @Override
     public ExtendedTable getTable(String name) {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table provider is closed");
+        }
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("provider, get: bad table name");
         }
@@ -56,7 +62,13 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
         }
         try {
             tableProviderTransactionLock.readLock().lock();
-            return tableMap.get(name);
+            MultiFileTable table = tableMap.get(name);
+            if (table.isClosed()) {
+                MultiFileTable other = new MultiFileTable(table);
+                tableMap.put(name, other);
+                return other;
+            }
+            return table;
         } finally {
             tableProviderTransactionLock.readLock().unlock();
         }
@@ -64,6 +76,9 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
 
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table provider is closed");
+        }
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("provider, create: invalid name");
         }
@@ -87,7 +102,7 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
             if (!tableDir.mkdir()) {
                 throw new IOException("provider, create: failed to create table directory");
             }
-            ExtendedTable table = new MultiFileTable(tableDir, name, this, columnTypes);
+            MultiFileTable table = new MultiFileTable(tableDir, name, this, columnTypes);
             tableMap.put(table.getName(), table);
             return table;
         } finally {
@@ -97,6 +112,9 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
 
     @Override
     public void removeTable(String name) throws IOException {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table provider is closed");
+        }
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("provider, remove: bad table name");
         }
@@ -115,6 +133,9 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table provider is closed");
+        }
         if (table == null || value == null) {
             throw new IllegalArgumentException("provider: table or value is null");
         }
@@ -129,6 +150,9 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table provider is closed");
+        }
         if (table == null || value == null) {
             throw new IllegalArgumentException("provider: table or value is null");
         }
@@ -146,6 +170,9 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
 
     @Override
     public Storeable createFor(Table table) {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table provider is closed");
+        }
         List<Class<?>> columnTypes = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             columnTypes.add(table.getColumnType(i));
@@ -155,6 +182,9 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table provider is closed");
+        }
         List<Class<?>> columnTypes = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             columnTypes.add(table.getColumnType(i));
@@ -162,5 +192,18 @@ public class MultiFileTableProvider implements ExtendedTableProvider {
         MultiFileTableRow row = new MultiFileTableRow(columnTypes);
         row.setAllColumns(values);
         return row;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[%s]", getClass().getSimpleName(), dbDirectory.getAbsolutePath());
+    }
+
+    @Override
+    public void close() throws Exception {
+        for (String key : tableMap.keySet()) {
+            tableMap.get(key).close();
+        }
+        isClosed.set(true);
     }
 }

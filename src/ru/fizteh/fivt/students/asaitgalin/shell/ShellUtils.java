@@ -29,7 +29,7 @@ public class ShellUtils {
     }
 
     public void batchMode(String[] args, PrintStream err) {
-        String commandLine = StringUtils.join(Arrays.asList(args), " ");
+        String commandLine = StringUtils.join(Arrays.asList(args), " ", false);
         try {
             table.executeCommandLine(commandLine);
         } catch (IOException ioe) {

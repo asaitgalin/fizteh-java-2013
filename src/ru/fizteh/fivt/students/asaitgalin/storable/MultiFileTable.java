@@ -11,29 +11,44 @@ import ru.fizteh.fivt.students.asaitgalin.storable.values.TableValueUnpackerStor
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MultiFileTable implements ExtendedTable {
+public class MultiFileTable implements ExtendedTable, AutoCloseable {
     // Underlying container
     private TableContainer<Storeable> container;
 
     private String name;
     private List<Class<?>> columnTypes;
+    private File tableDir;
+    private AtomicBoolean isClosed;
 
     public MultiFileTable(File tableDir, String name, TableProvider provider) {
         this.name = name;
+        this.tableDir = tableDir;
         MultiFileTableSignatureWorker worker = new MultiFileTableSignatureWorker(tableDir);
         columnTypes = worker.readColumnTypes();
         this.container = new TableContainer<>(tableDir, new TableValuePackerStorable(this, provider),
                 new TableValueUnpackerStorable(this, provider));
+        this.isClosed = new AtomicBoolean(false);
     }
 
     public MultiFileTable(File tableDir, String name, TableProvider provider, List<Class<?>> columnTypes) {
         this.name = name;
         this.columnTypes = columnTypes;
+        this.tableDir = tableDir;
         this.container = new TableContainer<>(tableDir, new TableValuePackerStorable(this, provider),
                 new TableValueUnpackerStorable(this, provider));
         MultiFileTableSignatureWorker worker = new MultiFileTableSignatureWorker(tableDir);
         worker.writeColumnTypes(columnTypes);
+        this.isClosed = new AtomicBoolean(false);
+    }
+
+    public MultiFileTable(MultiFileTable srcTable) {
+        this.container = srcTable.container;
+        this.name = srcTable.name;
+        this.columnTypes = srcTable.columnTypes;
+        this.tableDir = srcTable.tableDir;
+        this.isClosed = new AtomicBoolean(false);
     }
 
     @Override
@@ -43,11 +58,17 @@ public class MultiFileTable implements ExtendedTable {
 
     @Override
     public String getName() {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table is closed");
+        }
         return name;
     }
 
     @Override
     public Storeable get(String key) {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table is closed");
+        }
         if (key == null) {
             throw new IllegalArgumentException("get: key is null");
         }
@@ -56,6 +77,9 @@ public class MultiFileTable implements ExtendedTable {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table is closed");
+        }
         if (key == null || value == null) {
             throw new IllegalArgumentException("put: key or value is null");
         }
@@ -68,6 +92,9 @@ public class MultiFileTable implements ExtendedTable {
 
     @Override
     public Storeable remove(String key) {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table is closed");
+        }
         if (key == null) {
             throw new IllegalArgumentException("remove: key is null");
         }
@@ -76,26 +103,41 @@ public class MultiFileTable implements ExtendedTable {
 
     @Override
     public int size() {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table is closed");
+        }
         return container.containerGetSize();
     }
 
     @Override
     public int commit() throws IOException {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table is closed");
+        }
         return container.containerCommit();
     }
 
     @Override
     public int rollback() {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table is closed");
+        }
         return container.containerRollback();
     }
 
     @Override
     public int getColumnsCount() {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table is closed");
+        }
         return columnTypes.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (isClosed.get()) {
+            throw new IllegalStateException("table is closed");
+        }
         if (columnIndex < 0 || columnIndex >= columnTypes.size()) {
             throw new IndexOutOfBoundsException(String.format("table, getColumnType: index %d out of bounds", columnIndex));
         }
@@ -151,4 +193,18 @@ public class MultiFileTable implements ExtendedTable {
         }
     }
 
+    public boolean isClosed() {
+        return isClosed.get();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[%s]", getClass().getSimpleName(), tableDir.getAbsolutePath());
+    }
+
+    @Override
+    public void close() throws Exception {
+        rollback();
+        isClosed.set(true);
+    }
 }

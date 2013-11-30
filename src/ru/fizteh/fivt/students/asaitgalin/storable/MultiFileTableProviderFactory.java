@@ -5,10 +5,18 @@ import ru.fizteh.fivt.students.asaitgalin.storable.extensions.ExtendedTableProvi
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MultiFileTableProviderFactory implements ExtendedTableProviderFactory {
+public class MultiFileTableProviderFactory implements ExtendedTableProviderFactory, AutoCloseable {
+    private List<MultiFileTableProvider> providers = new ArrayList<>();
+    private boolean isClosed = false;
+
     @Override
     public ExtendedTableProvider create(String dir) throws IOException {
+        if (isClosed) {
+            throw new IllegalStateException("table provider factory is closed");
+        }
         if (dir == null || dir.trim().isEmpty()) {
             throw new IllegalArgumentException("factory, create: directory name is invalid");
         }
@@ -22,6 +30,17 @@ public class MultiFileTableProviderFactory implements ExtendedTableProviderFacto
                 throw new IllegalArgumentException("factory, create: provided name is not directory");
             }
         }
-        return new MultiFileTableProvider(new File(dir));
+        MultiFileTableProvider provider = new MultiFileTableProvider(new File(dir));
+        providers.add(provider);
+        return provider;
     }
+
+    @Override
+    public void close() throws Exception {
+        for (MultiFileTableProvider provider : providers) {
+            provider.close();
+        }
+        isClosed = true;
+    }
+
 }

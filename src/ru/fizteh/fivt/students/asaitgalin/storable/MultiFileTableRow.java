@@ -103,7 +103,7 @@ public class MultiFileTableRow implements Storeable {
 
     @Override
     public String toString() {
-        return StringUtils.join(columnData, " ");
+        return String.format("%s[%s]", getClass().getSimpleName(), StringUtils.join(columnData, ",", true));
     }
 
     @Override

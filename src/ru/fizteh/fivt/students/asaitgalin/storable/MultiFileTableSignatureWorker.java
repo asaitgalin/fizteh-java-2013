@@ -44,7 +44,7 @@ public class MultiFileTableSignatureWorker {
             for (Class<?> cl : columnTypes) {
                 types.add(MultiFileTableTypes.getNameByClass(cl));
             }
-            writer.write(StringUtils.join(types, " "));
+            writer.write(StringUtils.join(types, " ", false));
             writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);

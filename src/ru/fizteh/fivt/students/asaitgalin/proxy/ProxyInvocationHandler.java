@@ -26,7 +26,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
         entry.writeArgs(args);
 
         try {
-            returnValue = method.invoke(proxy, args);
+            returnValue = method.invoke(implementation, args);
             if (!method.getReturnType().getName().equals("void")) {
                 entry.writeReturnValue(returnValue);
             }

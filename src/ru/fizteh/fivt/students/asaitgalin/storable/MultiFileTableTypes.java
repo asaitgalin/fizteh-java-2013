@@ -56,8 +56,8 @@ public enum MultiFileTableTypes {
         this.clazz = clazz;
     }
 
-    private static final Map<String, MultiFileTableTypes> nameToType;
-    private static final Map<Class<?>, MultiFileTableTypes> classToType;
+    private static final Map<String, MultiFileTableTypes> NAME_TO_TYPE;
+    private static final Map<Class<?>, MultiFileTableTypes> CLASS_TO_TYPE;
 
     static {
         Map<String, MultiFileTableTypes> tmpNameToClass = new HashMap<>();
@@ -66,12 +66,12 @@ public enum MultiFileTableTypes {
             tmpNameToClass.put(type.name, type);
             tmpClassToName.put(type.clazz, type);
         }
-        nameToType = Collections.unmodifiableMap(tmpNameToClass);
-        classToType = Collections.unmodifiableMap(tmpClassToName);
+        NAME_TO_TYPE = Collections.unmodifiableMap(tmpNameToClass);
+        CLASS_TO_TYPE = Collections.unmodifiableMap(tmpClassToName);
     }
 
     public static String getNameByClass(Class<?> clazz) {
-        MultiFileTableTypes types = classToType.get(clazz);
+        MultiFileTableTypes types = CLASS_TO_TYPE.get(clazz);
         if (types == null) {
             throw new IllegalArgumentException("types: unknown type class");
         }
@@ -81,7 +81,7 @@ public enum MultiFileTableTypes {
     public abstract Object parseValue(String s);
 
     public static Object parseValueWithClass(String s, Class<?> expectedClass) {
-        MultiFileTableTypes types = classToType.get(expectedClass);
+        MultiFileTableTypes types = CLASS_TO_TYPE.get(expectedClass);
         if (types == null) {
             throw new IllegalArgumentException("types: unknown type");
         }
@@ -89,7 +89,7 @@ public enum MultiFileTableTypes {
     }
 
     public static Class<?> getClassByName(String name) {
-        MultiFileTableTypes types = nameToType.get(name);
+        MultiFileTableTypes types = NAME_TO_TYPE.get(name);
         if (types == null) {
             throw new IllegalArgumentException("types: unknown type name");
         }

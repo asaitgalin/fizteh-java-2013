@@ -49,8 +49,9 @@ public class Parser {
 
     public int parseExpr() throws IllegalExpressionException {
         int x = parseTerm();
-        Operator op = (Operator)look;
-        while (!endOfStream && (op.opType == Operator.OperatorType.ADDITION || op.opType == Operator.OperatorType.SUBTRACTION)) {
+        Operator op = (Operator) look;
+        while (!endOfStream &&
+                (op.opType == Operator.OperatorType.ADDITION || op.opType == Operator.OperatorType.SUBTRACTION)) {
             if (op.opType == Operator.OperatorType.ADDITION) {
                 move();
                 x = safeAdd(x, parseTerm());
@@ -58,15 +59,16 @@ public class Parser {
                 move();
                 x = safeSubtract(x, parseTerm());
             }
-            op = (Operator)look;
+            op = (Operator) look;
         }
         return x;
     }
 
     public int parseTerm() throws IllegalExpressionException {
         int x = parseUnary();
-        Operator op = (Operator)look;
-        while (!endOfStream && (op.opType == Operator.OperatorType.MULTIPLICATION || op.opType == Operator.OperatorType.DIVISION)) {
+        Operator op = (Operator) look;
+        while (!endOfStream &&
+                (op.opType == Operator.OperatorType.MULTIPLICATION || op.opType == Operator.OperatorType.DIVISION)) {
             if (op.opType == Operator.OperatorType.MULTIPLICATION) {
                 move();
                 x = safeMultiply(x, parseUnary());
@@ -78,7 +80,7 @@ public class Parser {
                 }
                 x = x / y;
             }
-            op = (Operator)look;
+            op = (Operator) look;
         }
         return x;
     }

@@ -37,7 +37,7 @@ public class MultiFileTableRowTest {
 
     @Test
     public void testSetColumnAt() throws Exception {
-        row.setColumnAt(0, 54);;
+        row.setColumnAt(0, 54);
         Assert.assertEquals(row.getColumnAt(0), 54);
     }
 

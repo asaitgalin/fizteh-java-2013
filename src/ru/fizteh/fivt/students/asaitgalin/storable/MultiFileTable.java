@@ -139,7 +139,8 @@ public class MultiFileTable implements ExtendedTable, AutoCloseable {
             throw new IllegalStateException("table is closed");
         }
         if (columnIndex < 0 || columnIndex >= columnTypes.size()) {
-            throw new IndexOutOfBoundsException(String.format("table, getColumnType: index %d out of bounds", columnIndex));
+            throw new IndexOutOfBoundsException(String.format("table, getColumnType: index %d out of bounds",
+                    columnIndex));
         }
         return columnTypes.get(columnIndex);
     }

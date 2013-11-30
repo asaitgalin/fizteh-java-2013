@@ -13,20 +13,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultiFileTableTest {
-    private static final File dbTestPath = new File("./testsTable");
+    private static final File DB_TEST_PATH = new File("./testsTable");
 
     private static TableProvider provider;
     private static Table testTable;
 
     @BeforeClass
     public static void globalSetUp() {
-        dbTestPath.mkdir();
+        DB_TEST_PATH.mkdir();
     }
 
     @AfterClass
     public static void globalTearDown() {
         try {
-            FileUtils.deleteRecursively(dbTestPath);
+            FileUtils.deleteRecursively(DB_TEST_PATH);
         } catch (IOException ioe) {
             //
         }
@@ -37,7 +37,7 @@ public class MultiFileTableTest {
         List<Class<?>> columns = new ArrayList<>();
         columns.add(Integer.class);
         columns.add(String.class);
-        provider = new MultiFileTableProvider(dbTestPath);
+        provider = new MultiFileTableProvider(DB_TEST_PATH);
         testTable = provider.createTable("table3", columns);
     }
 
@@ -137,7 +137,8 @@ public class MultiFileTableTest {
     @Test
     public void testRollback() throws Exception {
         for (int i = 0; i < 7; ++i) {
-            testTable.put("rollbackKey" + i, provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
+            testTable.put("rollbackKey" + i, provider.deserialize(testTable,
+                    "<row><col>5</col><col>value</col></row>"));
         }
         testTable.commit();
         testTable.put("rollbackKey4", provider.deserialize(testTable, "<row><col>5</col><col>value222</col></row>"));

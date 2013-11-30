@@ -37,49 +37,49 @@ public class MultiFileTableRow implements Storeable {
     public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkClass(columnIndex, Integer.class);
-        return (Integer)columnData.get(columnIndex);
+        return (Integer) columnData.get(columnIndex);
     }
 
     @Override
     public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkClass(columnIndex, Long.class);
-        return (Long)columnData.get(columnIndex);
+        return (Long) columnData.get(columnIndex);
     }
 
     @Override
     public Byte getByteAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkClass(columnIndex, Byte.class);
-        return (Byte)columnData.get(columnIndex);
+        return (Byte) columnData.get(columnIndex);
     }
 
     @Override
     public Float getFloatAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkClass(columnIndex, Float.class);
-        return (Float)columnData.get(columnIndex);
+        return (Float) columnData.get(columnIndex);
     }
 
     @Override
     public Double getDoubleAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkClass(columnIndex, Double.class);
-        return (Double)columnData.get(columnIndex);
+        return (Double) columnData.get(columnIndex);
     }
 
     @Override
     public Boolean getBooleanAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkClass(columnIndex, Boolean.class);
-        return (Boolean)columnData.get(columnIndex);
+        return (Boolean) columnData.get(columnIndex);
     }
 
     @Override
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkClass(columnIndex, String.class);
-        return (String)columnData.get(columnIndex);
+        return (String) columnData.get(columnIndex);
     }
 
     public void setAllColumns(List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
@@ -108,7 +108,13 @@ public class MultiFileTableRow implements Storeable {
 
     @Override
     public boolean equals(Object obj) {
-        MultiFileTableRow row = (MultiFileTableRow)obj;
+        MultiFileTableRow row = (MultiFileTableRow) obj;
         return row.columnTypes.equals(columnTypes) && row.columnData.equals(columnData);
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 }

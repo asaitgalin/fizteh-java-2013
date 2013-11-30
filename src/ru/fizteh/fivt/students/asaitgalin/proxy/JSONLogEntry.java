@@ -68,9 +68,12 @@ public class JSONLogEntry {
                 addedObjects.put(o, 0);
                 result.put(processIterable(container));
                 continue;
+            } else {
+                result.put(o);
             }
-            addedObjects.put(o, 0);
-            result.put(o);
+            if (o != null) {
+                addedObjects.put(o, 0);
+            }
         }
         return result;
     }

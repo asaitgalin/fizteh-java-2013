@@ -9,35 +9,36 @@ import java.util.IdentityHashMap;
 
 public class JSONLogEntry {
     private JSONObject jsonObject;
-    private IdentityHashMap<Object, Integer> addedObjects = new IdentityHashMap<>();
+    private final IdentityHashMap<Object, Integer> addedObjects;
 
     public JSONLogEntry() {
+        addedObjects = new IdentityHashMap<>();
         jsonObject = new JSONObject();
     }
 
     public void writeTimestamp() {
-        jsonObject.put("timestamp", System.currentTimeMillis());
+        jsonObject = jsonObject.put("timestamp", System.currentTimeMillis());
     }
 
     public void writeClass(Class<?> clazz) {
-        jsonObject.put("class", clazz.getName());
+        jsonObject = jsonObject.put("class", clazz.getName());
     }
 
     public void writeMethod(Method method) {
-        jsonObject.put("method", method.getName());
+        jsonObject = jsonObject.put("method", method.getName());
     }
 
     public void writeArgs(Object[] args) {
         if (args == null) {
-            jsonObject.put("arguments", new JSONArray());
-        } else {
-            jsonObject.put("arguments", new JSONArray(Arrays.asList(args)));
+            jsonObject = jsonObject.put("arguments", new JSONArray());
+            return;
         }
+        jsonObject = jsonObject.put("arguments", new JSONArray(Arrays.asList(args)));
         addedObjects.clear();
     }
 
     public void writeThrown(Throwable throwable) {
-        jsonObject.put("thrown", throwable.toString());
+        jsonObject = jsonObject.put("thrown", throwable.toString());
     }
 
     private JSONArray processIterable(Iterable iterable) {
@@ -63,15 +64,17 @@ public class JSONLogEntry {
     }
 
     public void writeReturnValue(Object result) {
-        Object resultValue = result;
-        if (resultValue != null) {
+        Object resultValue;
+        if (result != null) {
             if (result instanceof Iterable) {
                 resultValue = processIterable((Iterable) result);
+            } else {
+                resultValue = result;
             }
         } else {
             resultValue = JSONObject.NULL;
         }
-        jsonObject.put("returnValue", resultValue);
+        jsonObject = jsonObject.put("returnValue", resultValue);
     }
 
     @Override

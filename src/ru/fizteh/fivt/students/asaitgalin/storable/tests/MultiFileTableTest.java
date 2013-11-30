@@ -111,7 +111,7 @@ public class MultiFileTableTest {
         testTable.put("1", provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
         Assert.assertNull(testTable.remove("not_existing_key"));
         Assert.assertNull(testTable.remove("not_existing_key2"));
-        Assert.assertEquals(testTable.remove("1").toString(), "5 value");
+        Assert.assertEquals(testTable.remove("1").toString(), "MultiFileTableRow[5,value]");
     }
 
     @Test

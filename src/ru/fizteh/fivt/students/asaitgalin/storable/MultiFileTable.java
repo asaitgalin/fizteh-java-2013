@@ -205,6 +205,9 @@ public class MultiFileTable implements ExtendedTable, AutoCloseable {
 
     @Override
     public void close() throws Exception {
+        if (isClosed.get()) {
+            return;
+        }
         rollback();
         isClosed.set(true);
     }

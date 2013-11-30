@@ -40,7 +40,8 @@ public class ProxyInvocationHandler implements InvocationHandler {
             try {
                 // Skip Object methods
                 if (!method.getDeclaringClass().equals(Object.class)) {
-                    writer.write(entry.toString() + "\n");
+                    writer.write(entry.toString());
+                    writer.write(System.lineSeparator());
                 }
             } catch (IOException ioe) {
                 // Silent mode

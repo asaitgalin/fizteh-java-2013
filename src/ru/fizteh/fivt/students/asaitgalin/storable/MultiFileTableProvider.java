@@ -46,7 +46,6 @@ public class MultiFileTableProvider implements ExtendedTableProvider, AutoClosea
         }
         this.dbDirectory = dbDirectory;
         this.isClosed = new AtomicBoolean(false);
-
     }
 
     @Override
@@ -63,10 +62,12 @@ public class MultiFileTableProvider implements ExtendedTableProvider, AutoClosea
         try {
             tableProviderTransactionLock.readLock().lock();
             MultiFileTable table = tableMap.get(name);
-            if (table.isClosed()) {
-                MultiFileTable other = new MultiFileTable(table);
-                tableMap.put(name, other);
-                return other;
+            if (table != null) {
+                if (table.isClosed()) {
+                    MultiFileTable other = new MultiFileTable(table);
+                    tableMap.put(name, other);
+                    return other;
+                }
             }
             return table;
         } finally {

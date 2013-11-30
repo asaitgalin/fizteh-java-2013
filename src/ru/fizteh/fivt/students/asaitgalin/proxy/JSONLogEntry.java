@@ -48,7 +48,7 @@ public class JSONLogEntry {
             } else if (o.getClass().isArray()) {
                 result.put(o.toString());
             } else if (o instanceof Iterable) {
-                Iterable container = (Iterable)o;
+                Iterable container = (Iterable) o;
                 boolean isEmpty = !container.iterator().hasNext();
                 if (addedObjects.containsKey(o) && !isEmpty) {
                     result.put("cyclic");

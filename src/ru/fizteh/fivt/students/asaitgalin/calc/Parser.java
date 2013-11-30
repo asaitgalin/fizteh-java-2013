@@ -50,8 +50,8 @@ public class Parser {
     public int parseExpr() throws IllegalExpressionException {
         int x = parseTerm();
         Operator op = (Operator) look;
-        while (!endOfStream &&
-                (op.opType == Operator.OperatorType.ADDITION || op.opType == Operator.OperatorType.SUBTRACTION)) {
+        while (!endOfStream
+                && (op.opType == Operator.OperatorType.ADDITION || op.opType == Operator.OperatorType.SUBTRACTION)) {
             if (op.opType == Operator.OperatorType.ADDITION) {
                 move();
                 x = safeAdd(x, parseTerm());
@@ -67,8 +67,8 @@ public class Parser {
     public int parseTerm() throws IllegalExpressionException {
         int x = parseUnary();
         Operator op = (Operator) look;
-        while (!endOfStream &&
-                (op.opType == Operator.OperatorType.MULTIPLICATION || op.opType == Operator.OperatorType.DIVISION)) {
+        while (!endOfStream
+                && (op.opType == Operator.OperatorType.MULTIPLICATION || op.opType == Operator.OperatorType.DIVISION)) {
             if (op.opType == Operator.OperatorType.MULTIPLICATION) {
                 move();
                 x = safeMultiply(x, parseUnary());
@@ -90,7 +90,7 @@ public class Parser {
             throw new IllegalExpressionException();
         }
         if (look.type == Token.TokenType.OPERATOR) {
-            if (((Operator)look).opType == Operator.OperatorType.SUBTRACTION) {
+            if (((Operator) look).opType == Operator.OperatorType.SUBTRACTION) {
                 move();
                 return -parseFactor();
             }
@@ -101,15 +101,15 @@ public class Parser {
     public int parseFactor() throws IllegalExpressionException {
         int ret = 0;
         if (look.type == Token.TokenType.NUMBER) {
-            ret = ((Number)look).value;
+            ret = ((Number) look).value;
             move();
         } else if (look.type == Token.TokenType.OPERATOR) {
-            Operator op = (Operator)look;
+            Operator op = (Operator) look;
             if (op.opType == Operator.OperatorType.LBRACKET) {
                 move();
                 ret = parseExpr();
                 // Check matching bracket
-                if (look != null && ((Operator)look).opType == Operator.OperatorType.RBRACKET) {
+                if (look != null && ((Operator) look).opType == Operator.OperatorType.RBRACKET) {
                     move();
                 } else {
                     throw new IllegalExpressionException("Missing matching bracket");

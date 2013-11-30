@@ -112,7 +112,8 @@ public class TableContainer<ValueType> {
 
     private File tableDirectory;
 
-    public TableContainer(File tableDirectory, TableValuePacker<ValueType> packer, TableValueUnpacker<ValueType> unpacker) {
+    public TableContainer(File tableDirectory, TableValuePacker<ValueType> packer,
+                          TableValueUnpacker<ValueType> unpacker) {
         this.transactions = new ThreadLocal<TransactionData>() {
             @Override
             protected TransactionData initialValue() {

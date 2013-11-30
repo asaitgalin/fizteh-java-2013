@@ -65,7 +65,9 @@ public class JSONLogEntry {
                     result.put("cyclic");
                     continue;
                 }
+                addedObjects.put(o, 0);
                 result.put(processIterable(container));
+                continue;
             }
             addedObjects.put(o, 0);
             result.put(o);

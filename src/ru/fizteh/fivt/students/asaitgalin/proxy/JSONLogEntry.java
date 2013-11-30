@@ -9,7 +9,7 @@ import java.util.IdentityHashMap;
 
 public class JSONLogEntry {
     private JSONObject jsonObject;
-    private IdentityHashMap<Object, Integer> addedObjects;
+    private IdentityHashMap<Object, Integer> addedObjects = new IdentityHashMap<>();
 
     public JSONLogEntry() {
         jsonObject = new JSONObject();

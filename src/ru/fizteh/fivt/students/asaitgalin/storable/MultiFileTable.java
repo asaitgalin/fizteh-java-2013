@@ -45,6 +45,11 @@ public class MultiFileTable implements ExtendedTable, AutoCloseable {
 
     public MultiFileTable(MultiFileTable srcTable) {
         this.container = new TableContainer<>(srcTable.container);
+        try {
+            this.container.containerLoad();
+        } catch (IOException e) {
+            throw new RuntimeException("illegal file format");
+        }
         this.name = srcTable.name;
         this.columnTypes = srcTable.columnTypes;
         this.tableDir = srcTable.tableDir;

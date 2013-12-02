@@ -103,7 +103,13 @@ public class TableContainer<ValueType> {
         }
     }
 
-    private ThreadLocal<TransactionData> transactions;
+    private ThreadLocal<TransactionData> transactions = new ThreadLocal<TransactionData>() {
+        @Override
+        protected TransactionData initialValue() {
+            return new TransactionData();
+        }
+    };
+
     private Map<String, ValueType> originalTable;
     private TableValuePacker<ValueType> packer;
     private TableValueUnpacker<ValueType> unpacker;
@@ -114,24 +120,17 @@ public class TableContainer<ValueType> {
 
     public TableContainer(File tableDirectory, TableValuePacker<ValueType> packer,
                           TableValueUnpacker<ValueType> unpacker) {
-        this.transactions = new ThreadLocal<TransactionData>() {
-            @Override
-            protected TransactionData initialValue() {
-                return new TransactionData();
-            }
-        };
         this.originalTable = new HashMap<>();
         this.tableDirectory = tableDirectory;
         this.packer = packer;
         this.unpacker = unpacker;
     }
 
-    public TableContainer(TableContainer container) {
-        this.originalTable = container.originalTable;
-        this.tableDirectory = container.tableDirectory;
-        this.packer = container.packer;
-        this.unpacker = container.unpacker;
-        this.transactions = container.transactions;
+    public TableContainer(TableContainer other) {
+        this.originalTable = new HashMap<>();
+        this.tableDirectory = other.tableDirectory;
+        this.packer = other.packer;
+        this.unpacker = other.unpacker;
     }
 
     public ValueType containerGetValue(String key) {

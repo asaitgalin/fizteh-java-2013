@@ -148,7 +148,11 @@ public class TableContainer<ValueType> {
             transactionsLock.lock();
             int changesCount = transactions.get().transactionCommit();
             transactions.get().transactionClearChanges();
-            containerSave();
+            try {
+                containerSave();
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe.getMessage(), ioe);
+            }
             return changesCount;
         } finally {
             transactionsLock.unlock();

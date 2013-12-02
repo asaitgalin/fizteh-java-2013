@@ -52,8 +52,8 @@ public class MultiFileTable implements ExtendedTable, AutoCloseable {
                 new TableValueUnpackerStorable(this, srcTable.provider));
         this.provider = srcTable.provider;
         this.name = srcTable.name;
-        this.columnTypes = srcTable.columnTypes;
         this.tableDir = srcTable.tableDir;
+        this.columnTypes = new MultiFileTableSignatureWorker(this.tableDir).readColumnTypes();
         this.isClosed = new AtomicBoolean(false);
     }
 

@@ -21,10 +21,12 @@ public class MultiFileTable implements ExtendedTable, AutoCloseable {
     private List<Class<?>> columnTypes;
     private File tableDir;
     private AtomicBoolean isClosed;
+    private TableProvider provider;
 
     public MultiFileTable(File tableDir, String name, TableProvider provider) {
         this.name = name;
         this.tableDir = tableDir;
+        this.provider = provider;
         MultiFileTableSignatureWorker worker = new MultiFileTableSignatureWorker(tableDir);
         columnTypes = worker.readColumnTypes();
         this.container = new TableContainer<>(tableDir, new TableValuePackerStorable(this, provider),
@@ -36,6 +38,7 @@ public class MultiFileTable implements ExtendedTable, AutoCloseable {
         this.name = name;
         this.columnTypes = columnTypes;
         this.tableDir = tableDir;
+        this.provider = provider;
         this.container = new TableContainer<>(tableDir, new TableValuePackerStorable(this, provider),
                 new TableValueUnpackerStorable(this, provider));
         MultiFileTableSignatureWorker worker = new MultiFileTableSignatureWorker(tableDir);
@@ -44,7 +47,9 @@ public class MultiFileTable implements ExtendedTable, AutoCloseable {
     }
 
     public MultiFileTable(MultiFileTable srcTable) {
-        this.container = new TableContainer<>(srcTable.container);
+        this.container = new TableContainer<>(srcTable.container,
+                new TableValuePackerStorable(this, srcTable.provider),
+                new TableValueUnpackerStorable(this, srcTable.provider));
         try {
             this.container.containerLoad();
         } catch (IOException e) {

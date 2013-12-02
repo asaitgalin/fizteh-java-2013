@@ -126,11 +126,12 @@ public class TableContainer<ValueType> {
         this.unpacker = unpacker;
     }
 
-    public TableContainer(TableContainer other) {
+    public TableContainer(TableContainer other, TableValuePacker<ValueType> packer,
+                          TableValueUnpacker<ValueType> unpacker) {
         this.originalTable = new HashMap<>();
         this.tableDirectory = other.tableDirectory;
-        this.packer = other.packer;
-        this.unpacker = other.unpacker;
+        this.packer = packer;
+        this.unpacker = unpacker;
     }
 
     public ValueType containerGetValue(String key) {

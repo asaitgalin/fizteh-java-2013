@@ -22,14 +22,14 @@ public class XMLWriter {
 
     public void writeValue(Object value) {
         try {
-            writer.writeStartElement("col");
             if (value == null) {
                 writer.writeStartElement("null");
                 writer.writeEndElement();
             } else {
+                writer.writeStartElement("col");
                 writer.writeCharacters(value.toString());
+                writer.writeEndElement();
             }
-            writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new RuntimeException("xmlwriter: failed to write value", e);
         }

@@ -145,6 +145,9 @@ public class TableContainer<ValueType> {
     }
 
     public ValueType containerRemoveValue(String key) {
+        if (containerGetValue(key) == null) {
+            return null;
+        }
         ValueType oldValue = transactions.get().transactionGet(key);
         transactions.get().transactionPut(key, null);
         transactions.get().transactionIncreaseChangesCount();

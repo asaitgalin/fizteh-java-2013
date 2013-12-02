@@ -128,15 +128,10 @@ public class TableContainer<ValueType> {
 
     public TableContainer(TableContainer other, TableValuePacker<ValueType> packer,
                           TableValueUnpacker<ValueType> unpacker) {
-        this.originalTable = new HashMap<>();
+        this.originalTable = other.originalTable;
         this.tableDirectory = other.tableDirectory;
         this.packer = packer;
         this.unpacker = unpacker;
-        try {
-            containerLoad();
-        } catch (IOException ioe) {
-            throw new RuntimeException("container: failed to load", ioe);
-        }
     }
 
     public ValueType containerGetValue(String key) {

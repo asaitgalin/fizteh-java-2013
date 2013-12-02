@@ -47,7 +47,7 @@ public class JSONLogEntry {
         } else {
             resultValue = JSONObject.NULL;
         }
-        jsonObject = jsonObject.put("returnValue", resultValue);
+        jsonObject.put("returnValue", resultValue);
         addedObjects.clear();
     }
 

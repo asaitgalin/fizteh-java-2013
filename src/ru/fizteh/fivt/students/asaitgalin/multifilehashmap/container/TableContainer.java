@@ -126,6 +126,14 @@ public class TableContainer<ValueType> {
         this.unpacker = unpacker;
     }
 
+    public TableContainer(TableContainer container) {
+        this.originalTable = container.originalTable;
+        this.tableDirectory = container.tableDirectory;
+        this.packer = container.packer;
+        this.unpacker = container.unpacker;
+        this.transactions = container.transactions;
+    }
+
     public ValueType containerGetValue(String key) {
         return transactions.get().transactionGet(key);
     }
@@ -148,11 +156,7 @@ public class TableContainer<ValueType> {
             transactionsLock.lock();
             int changesCount = transactions.get().transactionCommit();
             transactions.get().transactionClearChanges();
-            try {
-                containerSave();
-            } catch (IOException ioe) {
-                throw new RuntimeException(ioe.getMessage(), ioe);
-            }
+            containerSave();
             return changesCount;
         } finally {
             transactionsLock.unlock();
